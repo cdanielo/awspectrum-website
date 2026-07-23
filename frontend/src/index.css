@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+@theme {
+  --color-awsOrange: #FF9900;
+  --color-awsOrangeHover: #E08800;
+  --color-spectrumRed: #EF4444;
+  --color-spectrumOrange: #F97316;
+  --color-spectrumGreen: #22C55E;
+  --color-spectrumBlue: #2563EB;
+  --color-spectrumPurple: #7C3AED;
+  --color-darkBg: #090d16;
+  --color-darkCard: #111827;
+  --font-outfit: "Outfit", sans-serif;
+  --font-inter: "Inter", sans-serif;
+  --animate-float-slow: float 6s ease-in-out infinite;
+  --animate-float-delayed: floatDelayed 8s ease-in-out infinite;
+  --animate-spin-slow: spin 12s linear infinite;
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-12px) rotate(2deg); }
+  }
+  @keyframes floatDelayed {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(10px) rotate(-2deg); }
+  }
+}

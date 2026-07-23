@@ -1223,51 +1223,66 @@
         // 7. Interactive Form Submissions (With Confetti explosion!)
         function handleFormSubmit(event, source) {
             event.preventDefault();
+            const form = event.target;
             
-            // Trigger Confetti explosion celebrate!
-            const count = 200;
-            const defaults = {
-                origin: { y: 0.7 }
-            };
-
-            function fire(particleRatio, opts) {
-                confetti({
-                    ...defaults,
-                    ...opts,
-                    particleCount: Math.floor(count * particleRatio)
-                });
-            }
-
-            fire(0.25, {
-                spread: 26,
-                startVelocity: 55,
-            });
-            fire(0.2, {
-                spread: 60,
-            });
-            fire(0.35, {
-                spread: 100,
-                decay: 0.91,
-                scalar: 0.8
-            });
-            fire(0.1, {
-                spread: 120,
-                startVelocity: 25,
-                decay: 0.92,
-                scalar: 1.2
-            });
-            fire(0.1, {
-                spread: 120,
-                startVelocity: 45,
-            });
-
-            // Quick alert response
-            alert("¡Registro exitoso! Gracias por sumarte a AWSPECTRUM LATAM 2026. Joselyn Lagunas y el equipo organizador revisarán tu propuesta y te contactarán pronto.");
-            
+            // Build payload
+            let payload = {};
             if (source === 'Modal') {
-                closeModal();
+                payload = {
+                    type: document.getElementById('modalTypeInput')?.value || 'general',
+                    name: document.getElementById('formName')?.value || '',
+                    email: document.getElementById('formEmail')?.value || '',
+                    interest: document.getElementById('formQuery')?.value || '',
+                    message: document.getElementById('formMsg')?.value || '',
+                };
+            } else if (source === 'Newsletter') {
+                payload = {
+                    type: 'newsletter',
+                    name: '',
+                    email: form.querySelector('input[type="email"]')?.value || '',
+                    interest: 'newsletter',
+                    message: '',
+                };
             }
-            event.target.reset();
+
+            // Send to backend
+            fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Error al enviar');
+                return res.json();
+            })
+            .then(() => {
+                // Trigger Confetti explosion celebrate!
+                const count = 200;
+                const defaults = { origin: { y: 0.7 } };
+
+                function fire(particleRatio, opts) {
+                    confetti({
+                        ...defaults,
+                        ...opts,
+                        particleCount: Math.floor(count * particleRatio)
+                    });
+                }
+
+                fire(0.25, { spread: 26, startVelocity: 55 });
+                fire(0.2, { spread: 60 });
+                fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+                fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+                fire(0.1, { spread: 120, startVelocity: 45 });
+
+                if (source === 'Modal') {
+                    closeModal();
+                }
+                form.reset();
+            })
+            .catch(err => {
+                alert('Ocurrió un error al enviar el formulario. Intenta de nuevo.');
+                console.error(err);
+            });
         }
 
         // 8. HTML5 Canvas Spectrum Particle Cloud Background
