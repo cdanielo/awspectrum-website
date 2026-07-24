@@ -83,6 +83,46 @@ export default function Footer({ onOpenModal }: FooterProps) {
               Enviar
             </button>
           </form>
+
+          <div className="space-y-2">
+            <h4 className="font-outfit font-bold text-xs text-slate-800 dark:text-white uppercase tracking-wider">Redes sociales</h4>
+            <div className="flex flex-wrap gap-2">
+              <a
+                href="#"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-awsOrange hover:text-awsOrange dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+                aria-label="LinkedIn"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
+                  <path d="M6.94 8.5A1.56 1.56 0 1 0 6.94 5.38a1.56 1.56 0 0 0 0 3.12ZM5.5 9.75h2.88V18H5.5zM10.38 9.75h2.76v1.11h.04c.38-.72 1.31-1.48 2.7-1.48 2.89 0 3.42 1.9 3.42 4.37V18h-2.88v-7.61c0-1.81-.03-4.14-2.52-4.14-2.52 0-2.91 1.97-2.91 4V18H10.38z" />
+                </svg>
+              </a>
+              <a
+                href="https://www.instagram.com/awspectrum.latam?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-awsOrange hover:text-awsOrange dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+                aria-label="Instagram"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
+                  <path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4Zm0 2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H7Zm5 3.25A3.75 3.75 0 1 1 8.25 12 3.76 3.76 0 0 1 12 8.25Zm0 2A1.75 1.75 0 1 0 13.75 12 1.75 1.75 0 0 0 12 10.25Zm4.5-3.25a.75.75 0 1 1-.75.75.75.75 0 0 1 .75-.75Z" />
+                </svg>
+              </a>
+              <a
+                href="#"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:border-awsOrange hover:text-awsOrange dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300"
+                aria-label="Facebook"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
+                  <path d="M13.5 21v-8h2.7l.4-3h-3.1V3.9c0-.87.24-1.46 1.49-1.46H17V.1c-.26-.03-1.15-.1-2.18-.1-2.16 0-3.64 1.32-3.64 3.74V10H8.7v3h2.48v8z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
           <div className="text-[10px] text-slate-400 pt-2 flex flex-col space-y-1">
             <span>Organización: <strong>Joselyn Lagunas</strong> (Founder & AWS Community Builder)</span>
             <a href="mailto:awspectrum.latam@gmail.com" className="text-awsOrange font-mono hover:underline">awspectrum.latam@gmail.com</a>
