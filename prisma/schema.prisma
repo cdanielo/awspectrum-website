@@ -7,12 +7,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  USER
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum RegistrationRole {
+  ATTENDEE
+  SPEAKER
+  SPONSOR
+}
+
+enum RegistrationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  WAITLISTED
+}
+
+enum NotificationType {
+  CONFIRMATION
+  REMINDER_24H
+  REMINDER_1H
+  CANCELLATION
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   password  String
   firstName String
   lastName  String
+  role      Role     @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -30,4 +63,79 @@ model ContactSubmission {
   readAt    DateTime?
 
   @@map("contact_submissions")
+}
+
+model Event {
+  id          String      @id @default(uuid())
+  title       String
+  slug        String      @unique
+  description String
+  startDate   DateTime
+  endDate     DateTime
+  location    String?
+  isVirtual   Boolean     @default(false)
+  capacity    Int?
+  status      EventStatus @default(DRAFT)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  registrations EventRegistration[]
+
+  @@map("events")
+}
+
+model EventRegistration {
+  id        String             @id @default(uuid())
+  eventId   String
+  event     Event              @relation(fields: [eventId], references: [id])
+  role      RegistrationRole
+  status    RegistrationStatus @default(PENDING)
+  name      String
+  email     String
+  formData  Json?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  notifications NotificationLog[]
+
+  @@unique([eventId, email, role])
+  @@map("event_registrations")
+}
+
+model NotificationLog {
+  id             String            @id @default(uuid())
+  registrationId String
+  registration   EventRegistration @relation(fields: [registrationId], references: [id])
+  type           NotificationType
+  channel        String            @default("email")
+  sentAt         DateTime          @default(now())
+
+  @@map("notification_logs")
+}
+
+model MerchItem {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  price       Decimal? @db.Decimal(10, 2)
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("merch_items")
+}
+
+model CommunityProject {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  authorName  String
+  url         String?
+  imageUrl    String?
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("community_projects")
 }

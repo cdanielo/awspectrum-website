@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import type { CreateContactDto } from './dto/create-contact.dto';
 import { ContactService } from './contact.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
@@ -10,6 +11,7 @@ export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
   @Post()
+  @UseGuards(ThrottlerGuard)
   async submit(@Body(new ZodValidationPipe(CreateContactSchema)) body: CreateContactDto) {
     return this.contactService.submit(body);
   }
