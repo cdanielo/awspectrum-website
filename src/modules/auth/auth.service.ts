@@ -1,9 +1,16 @@
 import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
+import { Role } from '@prisma/client';
 import { UserRepository } from '../user/user.repository';
 import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
+
+interface TokenUser {
+  id: string;
+  email: string;
+  role: Role;
+}
 
 @Injectable()
 export class AuthService {
@@ -13,24 +20,26 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const existing = await this.userRepository.findByEmail(dto.email);
+    const email = dto.email.trim().toLowerCase();
+    const existing = await this.userRepository.findByEmail(email);
     if (existing) {
       throw new ConflictException('El correo ya está registrado');
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 12);
     const user = await this.userRepository.create({
-      email: dto.email,
+      email,
       password: hashedPassword,
-      firstName: dto.firstName,
-      lastName: dto.lastName,
+      firstName: dto.firstName.trim(),
+      lastName: dto.lastName.trim(),
     });
 
-    return this.generateToken(user.id, user.email);
+    return this.generateToken({ id: user.id, email: user.email, role: user.role });
   }
 
   async login(dto: LoginDto) {
-    const user = await this.userRepository.findByEmail(dto.email);
+    const email = dto.email.trim().toLowerCase();
+    const user = await this.userRepository.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
@@ -40,11 +49,11 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    return this.generateToken(user.id, user.email);
+    return this.generateToken({ id: user.id, email: user.email, role: user.role });
   }
 
-  private generateToken(userId: string, email: string) {
-    const payload = { sub: userId, email };
+  private generateToken(user: TokenUser) {
+    const payload = { sub: user.id, email: user.email, role: user.role };
     return {
       accessToken: this.jwtService.sign(payload),
     };

@@ -13,6 +13,7 @@ import NetworkGraph from './components/NetworkGraph';
 import SpeakersSection from './components/SpeakersSection';
 import SponsorsSection from './components/SponsorsSection';
 import CTASection from './components/CTASection';
+import MerchCarousel from './components/MerchCarousel';
 import Footer from './components/Footer';
 import ContactModal from './components/ContactModal';
 import type { ModalType } from './types';
@@ -44,6 +45,7 @@ function App() {
         <SpeakersSection onOpenModal={openModal} />
         <SponsorsSection onOpenModal={openModal} />
         <CTASection onOpenModal={openModal} />
+        <MerchCarousel />
       </main>
 
       <Footer onOpenModal={openModal} />

@@ -10,9 +10,15 @@ export class ContactRepository {
     return this.prisma.contactSubmission.create({ data });
   }
 
-  async findAll() {
+  async findAll(skip: number, take: number) {
     return this.prisma.contactSubmission.findMany({
       orderBy: { createdAt: 'desc' },
+      skip,
+      take,
     });
+  }
+
+  async count() {
+    return this.prisma.contactSubmission.count();
   }
 }

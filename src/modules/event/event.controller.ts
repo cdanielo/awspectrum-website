@@ -18,7 +18,7 @@ export class EventController {
 
   @Get(':slug')
   async findBySlug(@Param('slug') slug: string) {
-    return this.eventService.findBySlug(slug);
+    return this.eventService.findPublishedBySlug(slug);
   }
 
   @Post()

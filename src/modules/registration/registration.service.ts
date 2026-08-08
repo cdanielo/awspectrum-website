@@ -1,11 +1,17 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
-import { RegistrationStatus, EventStatus } from '@prisma/client';
-import { Prisma } from '@prisma/client';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
+import { RegistrationStatus, EventStatus, Prisma } from '@prisma/client';
 import { RegistrationRepository } from './registration.repository';
 import { EventRepository } from '../event/event.repository';
 import { NotificationsService } from '../notifications/notifications.service';
-import type { CreateRegistrationDto } from './dto/create-registration.dto';
-import type { RegistrationQueryDto } from './dto/registration-query.dto';
+import { CreateRegistrationDto } from './dto/create-registration.dto';
+import { RegistrationQueryDto } from './dto/registration-query.dto';
+
+const MAX_FORM_DATA_BYTES = 10 * 1024;
 
 @Injectable()
 export class RegistrationService {
@@ -24,29 +30,39 @@ export class RegistrationService {
       throw new BadRequestException('El evento no está abierto para inscripciones');
     }
 
-    let status: RegistrationStatus = RegistrationStatus.CONFIRMED;
-
-    if (dto.role === 'ATTENDEE' && event.capacity) {
-      const confirmedCount = await this.registrationRepository.countByEventAndStatus(
-        eventId,
-        RegistrationStatus.CONFIRMED,
-      );
-      if (confirmedCount >= event.capacity) {
-        status = RegistrationStatus.WAITLISTED;
+    if (dto.formData) {
+      const size = Buffer.byteLength(JSON.stringify(dto.formData), 'utf8');
+      if (size > MAX_FORM_DATA_BYTES) {
+        throw new BadRequestException('formData excede el tamaño máximo permitido');
       }
     }
 
-    try {
-      const registration = await this.registrationRepository.create({
-        eventId,
-        role: dto.role,
-        status,
-        name: dto.name,
-        email: dto.email,
-        formData: dto.formData ?? Prisma.JsonNull,
-      });
+    const baseData: Omit<Prisma.EventRegistrationUncheckedCreateInput, 'eventId' | 'status'> = {
+      role: dto.role,
+      name: dto.name.trim(),
+      email: dto.email.trim().toLowerCase(),
+      formData: dto.formData
+        ? (dto.formData as Prisma.InputJsonValue)
+        : Prisma.JsonNull,
+    };
 
-      if (status === RegistrationStatus.CONFIRMED) {
+    try {
+      let registration;
+      if (event.capacity) {
+        registration = await this.registrationRepository.createWithCapacityControl(
+          eventId,
+          event.capacity,
+          baseData,
+        );
+      } else {
+        registration = await this.registrationRepository.create({
+          ...baseData,
+          eventId,
+          status: RegistrationStatus.CONFIRMED,
+        });
+      }
+
+      if (registration.status === RegistrationStatus.CONFIRMED) {
         await this.notificationsService.sendConfirmation(registration.id).catch(() => {});
       }
 
@@ -63,11 +79,19 @@ export class RegistrationService {
   }
 
   async findByEvent(eventId: string, query: RegistrationQueryDto) {
-    const where: any = { eventId };
+    const where: Prisma.EventRegistrationWhereInput = { eventId };
     if (query.role) where.role = query.role;
     if (query.status) where.status = query.status;
 
-    return this.registrationRepository.findMany(where);
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.registrationRepository.findMany(where, skip, limit),
+      this.registrationRepository.countByEvent(eventId),
+    ]);
+    return { data, total, page, limit };
   }
 
   async updateStatus(id: string, status: RegistrationStatus) {

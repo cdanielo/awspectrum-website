@@ -35,6 +35,14 @@ export class EventService {
     return event;
   }
 
+  async findPublishedBySlug(slug: string) {
+    const event = await this.eventRepository.findBySlug(slug);
+    if (!event || event.status !== EventStatus.PUBLISHED) {
+      throw new NotFoundException('Evento no encontrado');
+    }
+    return event;
+  }
+
   async create(dto: CreateEventDto) {
     this.validateDates(new Date(dto.startDate), new Date(dto.endDate));
     await this.ensureSlugUnique(dto.slug);

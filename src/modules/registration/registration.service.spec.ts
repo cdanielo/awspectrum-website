@@ -11,8 +11,10 @@ describe('RegistrationService', () => {
 
   const mockRegistrationRepository = {
     create: jest.fn(),
+    createWithCapacityControl: jest.fn(),
     findById: jest.fn(),
     findMany: jest.fn(),
+    countByEvent: jest.fn(),
     countByEventAndStatus: jest.fn(),
     update: jest.fn(),
   };
@@ -71,11 +73,15 @@ describe('RegistrationService', () => {
 
     it('should create a waitlisted registration when at capacity', async () => {
       mockEventRepository.findById.mockResolvedValue({ id: '1', status: EventStatus.PUBLISHED, capacity: 1 });
-      mockRegistrationRepository.countByEventAndStatus.mockResolvedValue(1);
-      mockRegistrationRepository.create.mockResolvedValue({ id: 'r2', status: RegistrationStatus.WAITLISTED });
+      mockRegistrationRepository.createWithCapacityControl.mockResolvedValue({ id: 'r2', status: RegistrationStatus.WAITLISTED });
 
       const result = await service.create('1', validDto);
       expect(result).toBeDefined();
+      expect(mockRegistrationRepository.createWithCapacityControl).toHaveBeenCalledWith(
+        '1',
+        1,
+        expect.objectContaining({ role: 'ATTENDEE', name: 'Test', email: 'test@test.com' }),
+      );
       expect(mockNotificationsService.sendConfirmation).not.toHaveBeenCalled();
     });
 

@@ -9,6 +9,7 @@ describe('CommunityService', () => {
 
   const mockRepository = {
     findMany: jest.fn(),
+    count: jest.fn(),
     findById: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -34,11 +35,15 @@ describe('CommunityService', () => {
     it('should return projects sorted by isFeatured desc, createdAt desc', async () => {
       const projects = [{ id: '1', title: 'Project A', isFeatured: true }];
       mockRepository.findMany.mockResolvedValue(projects);
+      mockRepository.count.mockResolvedValue(1);
 
       const result = await service.findAll();
-      expect(result).toEqual(projects);
+      expect(result.data).toEqual(projects);
+      expect(result.total).toBe(1);
       expect(mockRepository.findMany).toHaveBeenCalledWith({
         orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
+        skip: 0,
+        take: 10,
       });
     });
   });

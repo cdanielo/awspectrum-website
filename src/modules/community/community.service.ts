@@ -1,16 +1,23 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CommunityRepository } from './community.repository';
-import type { CreateCommunityProjectDto } from './dto/create-community-project.dto';
-import type { UpdateCommunityProjectDto } from './dto/update-community-project.dto';
+import { CreateCommunityProjectDto } from './dto/create-community-project.dto';
+import { UpdateCommunityProjectDto } from './dto/update-community-project.dto';
 
 @Injectable()
 export class CommunityService {
   constructor(private readonly communityRepository: CommunityRepository) {}
 
-  async findAll() {
-    return this.communityRepository.findMany({
-      orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
-    });
+  async findAll(page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.communityRepository.findMany({
+        orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
+        skip,
+        take: limit,
+      }),
+      this.communityRepository.count(),
+    ]);
+    return { data, total, page, limit };
   }
 
   async create(dto: CreateCommunityProjectDto) {

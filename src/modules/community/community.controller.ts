@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CommunityService } from './community.service';
+import { CommunityQueryDto } from './dto/community-query.dto';
 import { CreateCommunityProjectDto } from './dto/create-community-project.dto';
 import { UpdateCommunityProjectDto } from './dto/update-community-project.dto';
 
@@ -11,8 +12,8 @@ export class CommunityController {
   constructor(private readonly communityService: CommunityService) {}
 
   @Get()
-  async findAll() {
-    return this.communityService.findAll();
+  findAll(@Query() query: CommunityQueryDto) {
+    return this.communityService.findAll(query.page, query.limit);
   }
 
   @Post()

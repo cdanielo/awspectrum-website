@@ -52,10 +52,22 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Lint frontend
+        working-directory: frontend
+        run: npm ci && npm run lint
+
       - name: Unit tests
         run: npm test
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/awspectrum_test
+
+      - name: E2E tests
+        run: npm run test:e2e
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/awspectrum_test
+          JWT_SECRET: ci-only-secret-that-is-at-least-32-chars-long
+          CORS_ORIGIN: http://localhost:5173
+          NODE_ENV: test
 
   build-and-deploy:
     needs: test
@@ -72,7 +84,6 @@ jobs:
 
       - run: npm ci
       - run: npx prisma generate
-      - run: npm run build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

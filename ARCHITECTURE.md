@@ -16,8 +16,8 @@ Este backend está diseñado como una aplicación NestJS modular con separación
 - Principio de Responsabilidad Única
 - Principio Open/Closed
 - Inversión de dependencias con inyección de dependencias de NestJS
-- Validación de entrada con `zod`
-- Seguridad con `helmet`, CORS y manejo centralizado de errores
+- Validación de entrada con `class-validator` (ValidationPipe global con whitelist) y `zod` para variables de entorno
+- Seguridad con `helmet`, CORS, rate limiting (`@nestjs/throttler`) y manejo centralizado de errores
 
 ## Estructura de carpetas
 
@@ -55,4 +55,9 @@ Esto garantiza que el código nuevo no rompe los módulos existentes.
 
 ## Integración con frontend
 
-La aplicación puede servir contenido estático desde `public/`, lo que permite un despliegue integrado con el frontend en el mismo proyecto.
+El frontend (React + Vite) se construye en `frontend/dist` y se despliega de forma independiente a GitHub Pages
+(`.github/workflows/deploy-pages.yml`). El backend NestJS se despliega en AWS App Runner y sirve únicamente la API
+bajo `/api`. Cuando `frontend/dist` existe en el mismo proceso, el backend también sirve la SPA de forma integrada.
+
+El frontend llama a la API mediante `VITE_API_URL` (variable de entorno de build); si no está definida usa la ruta
+relativa `/api` (útil en desarrollo con el proxy de Vite o en modo integrado).

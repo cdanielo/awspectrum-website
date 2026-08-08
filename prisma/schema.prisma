@@ -99,6 +99,8 @@ model EventRegistration {
   notifications NotificationLog[]
 
   @@unique([eventId, email, role])
+  @@index([eventId, status])
+  @@index([email])
   @@map("event_registrations")
 }
 
@@ -110,6 +112,7 @@ model NotificationLog {
   channel        String            @default("email")
   sentAt         DateTime          @default(now())
 
+  @@unique([registrationId, type])
   @@map("notification_logs")
 }
 

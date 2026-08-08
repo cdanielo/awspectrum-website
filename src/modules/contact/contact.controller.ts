@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import type { CreateContactDto } from './dto/create-contact.dto';
+import { CreateContactDto } from './dto/create-contact.dto';
+import { ContactQueryDto } from './dto/contact-query.dto';
 import { ContactService } from './contact.service';
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import { CreateContactSchema } from './dto/create-contact.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
 
 @Controller('contact')
 export class ContactController {
@@ -12,13 +13,14 @@ export class ContactController {
 
   @Post()
   @UseGuards(ThrottlerGuard)
-  async submit(@Body(new ZodValidationPipe(CreateContactSchema)) body: CreateContactDto) {
+  submit(@Body() body: CreateContactDto) {
     return this.contactService.submit(body);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
-  async findAll() {
-    return this.contactService.findAll();
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  findAll(@Query() query: ContactQueryDto) {
+    return this.contactService.findAll(query.page, query.limit);
   }
 }

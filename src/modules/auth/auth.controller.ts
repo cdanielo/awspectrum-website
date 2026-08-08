@@ -1,27 +1,31 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
+import { Request } from 'express';
 import { AuthService } from './auth.service';
-import { LoginSchema } from './dto/login.dto';
-import { RegisterSchema } from './dto/register.dto';
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
+import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
+@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
-  async register(@Body(new ZodValidationPipe(RegisterSchema)) body: unknown) {
-    return this.authService.register(body as any);
+  register(@Body() body: RegisterDto) {
+    return this.authService.register(body);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
-  async login(@Body(new ZodValidationPipe(LoginSchema)) body: unknown) {
-    return this.authService.login(body as any);
+  login(@Body() body: LoginDto) {
+    return this.authService.login(body);
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  async me() {
-    return { message: 'Autenticado' };
+  me(@Req() req: Request) {
+    return req.user;
   }
 }

@@ -11,6 +11,7 @@ import { RegistrationModule } from './modules/registration/registration.module';
 import { MerchModule } from './modules/merch/merch.module';
 import { CommunityModule } from './modules/community/community.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { HealthModule } from './modules/health/health.module';
 import { RolesGuard } from './common/guards/roles.guard';
 import appConfig from './config/app.config';
 import { envSchema } from './config/env.validation';
@@ -39,6 +40,7 @@ import { envSchema } from './config/env.validation';
     MerchModule,
     CommunityModule,
     NotificationsModule,
+    HealthModule,
   ],
   providers: [RolesGuard],
 })

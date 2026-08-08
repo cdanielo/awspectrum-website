@@ -1,11 +1,25 @@
-import { z } from 'zod';
+import { IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
-export const CreateContactSchema = z.object({
-  type: z.enum(['sponsor', 'speaker', 'community', 'general', 'newsletter']),
-  name: z.string().min(1, 'El nombre es requerido'),
-  email: z.string().email('Correo inválido'),
-  interest: z.string().optional(),
-  message: z.string().optional(),
-});
+export class CreateContactDto {
+  @IsIn(['sponsor', 'speaker', 'community', 'general', 'newsletter'])
+  type!: string;
 
-export type CreateContactDto = z.infer<typeof CreateContactSchema>;
+  @IsString()
+  @MinLength(1, { message: 'El nombre es requerido' })
+  @MaxLength(255)
+  name!: string;
+
+  @IsEmail({}, { message: 'Correo inválido' })
+  @MaxLength(320)
+  email!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  interest?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(5000)
+  message?: string;
+}

@@ -10,7 +10,7 @@ RUN npx prisma generate
 
 COPY tsconfig.json tsconfig.build.json nest-cli.json ./
 COPY src ./src
-RUN npm run build
+RUN npx tsc -p tsconfig.build.json
 
 FROM node:20.12.0-alpine AS runtime
 

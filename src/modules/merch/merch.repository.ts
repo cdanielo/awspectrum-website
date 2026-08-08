@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import type { Prisma } from '@prisma/client';
-import type { CreateMerchDto } from './dto/create-merch.dto';
-import type { UpdateMerchDto } from './dto/update-merch.dto';
 
 @Injectable()
 export class MerchRepository {
@@ -12,15 +10,19 @@ export class MerchRepository {
     return this.prisma.merchItem.findMany(args);
   }
 
+  async count(where: Prisma.MerchItemWhereInput = {}) {
+    return this.prisma.merchItem.count({ where });
+  }
+
   async findById(id: string) {
     return this.prisma.merchItem.findUnique({ where: { id } });
   }
 
-  async create(data: CreateMerchDto) {
-    return this.prisma.merchItem.create({ data: data as any });
+  async create(data: Prisma.MerchItemCreateInput) {
+    return this.prisma.merchItem.create({ data });
   }
 
-  async update(id: string, data: UpdateMerchDto) {
-    return this.prisma.merchItem.update({ where: { id }, data: data as any });
+  async update(id: string, data: Prisma.MerchItemUpdateInput) {
+    return this.prisma.merchItem.update({ where: { id }, data });
   }
 }

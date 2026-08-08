@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { submitContact } from '../utils/api';
 import { fireConfetti } from '../utils/confetti';
@@ -46,6 +46,18 @@ export default function ContactModal({ visible, type, onClose }: ContactModalPro
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!visible) return;
+    closeBtnRef.current?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [visible, onClose]);
 
   const config = modalConfig[type];
 
@@ -85,6 +97,9 @@ export default function ContactModal({ visible, type, onClose }: ContactModalPro
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={config.title}
       className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4"
       onClick={handleBgClick}
     >
@@ -92,7 +107,7 @@ export default function ContactModal({ visible, type, onClose }: ContactModalPro
         className="w-full max-w-lg p-8 sm:p-10 rounded-3xl bg-white dark:bg-darkCard border border-slate-200 dark:border-slate-800/80 shadow-2xl relative max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
-        <button onClick={onClose} aria-label="Close modal"
+        <button ref={closeBtnRef} onClick={onClose} aria-label="Close modal"
           className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/60 transition">
           <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -108,21 +123,21 @@ export default function ContactModal({ visible, type, onClose }: ContactModalPro
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest" htmlFor="formName">Nombre Completo</label>
-            <input id="formName" type="text" required value={name} onChange={e => setName(e.target.value)}
+            <input id="formName" type="text" required maxLength={255} value={name} onChange={e => setName(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-awsOrange"
               placeholder="Ingresa tu nombre" />
           </div>
 
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest" htmlFor="formEmail">Correo Electrónico</label>
-            <input id="formEmail" type="email" required value={email} onChange={e => setEmail(e.target.value)}
+            <input id="formEmail" type="email" required maxLength={320} value={email} onChange={e => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-awsOrange"
               placeholder="ejemplo@correo.com" />
           </div>
 
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest" htmlFor="formMsg">Mensaje / Detalles Adicionales</label>
-            <textarea id="formMsg" rows={3} value={message} onChange={e => setMessage(e.target.value)}
+            <textarea id="formMsg" rows={3} maxLength={5000} value={message} onChange={e => setMessage(e.target.value)}
               className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-awsOrange"
               placeholder="Cuéntanos un poco sobre ti o tu propuesta..." />
           </div>

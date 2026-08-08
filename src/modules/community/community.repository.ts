@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import type { Prisma } from '@prisma/client';
-import type { CreateCommunityProjectDto } from './dto/create-community-project.dto';
-import type { UpdateCommunityProjectDto } from './dto/update-community-project.dto';
 
 @Injectable()
 export class CommunityRepository {
@@ -12,15 +10,19 @@ export class CommunityRepository {
     return this.prisma.communityProject.findMany(args);
   }
 
+  async count() {
+    return this.prisma.communityProject.count();
+  }
+
   async findById(id: string) {
     return this.prisma.communityProject.findUnique({ where: { id } });
   }
 
-  async create(data: CreateCommunityProjectDto) {
-    return this.prisma.communityProject.create({ data: data as any });
+  async create(data: Prisma.CommunityProjectCreateInput) {
+    return this.prisma.communityProject.create({ data });
   }
 
-  async update(id: string, data: UpdateCommunityProjectDto) {
-    return this.prisma.communityProject.update({ where: { id }, data: data as any });
+  async update(id: string, data: Prisma.CommunityProjectUpdateInput) {
+    return this.prisma.communityProject.update({ where: { id }, data });
   }
 }

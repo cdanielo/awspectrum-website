@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Patch, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { MerchService } from './merch.service';
+import { MerchQueryDto } from './dto/merch-query.dto';
 import { CreateMerchDto } from './dto/create-merch.dto';
 import { UpdateMerchDto } from './dto/update-merch.dto';
 
@@ -11,8 +12,8 @@ export class MerchController {
   constructor(private readonly merchService: MerchService) {}
 
   @Get()
-  async findAll() {
-    return this.merchService.findAllActive();
+  findAll(@Query() query: MerchQueryDto) {
+    return this.merchService.findAllActive(query.page, query.limit);
   }
 
   @Post()

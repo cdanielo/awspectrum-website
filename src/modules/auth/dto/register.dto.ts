@@ -1,10 +1,22 @@
-import { z } from 'zod';
+import { IsEmail, IsString, MaxLength, MinLength } from 'class-validator';
 
-export const RegisterSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8, 'La contraseña debe tener al menos 8 caracteres'),
-  firstName: z.string().min(1, 'El nombre es requerido'),
-  lastName: z.string().min(1, 'El apellido es requerido'),
-});
+export class RegisterDto {
+  @IsEmail()
+  @MaxLength(320)
+  email!: string;
 
-export type RegisterDto = z.infer<typeof RegisterSchema>;
+  @IsString()
+  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
+  @MaxLength(128)
+  password!: string;
+
+  @IsString()
+  @MinLength(1, { message: 'El nombre es requerido' })
+  @MaxLength(255)
+  firstName!: string;
+
+  @IsString()
+  @MinLength(1, { message: 'El apellido es requerido' })
+  @MaxLength(255)
+  lastName!: string;
+}

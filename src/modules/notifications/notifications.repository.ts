@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../shared/prisma/prisma.service';
-import type { NotificationType } from '@prisma/client';
+import { RegistrationStatus, NotificationType } from '@prisma/client';
 
 @Injectable()
 export class NotificationsRepository {
@@ -41,7 +41,7 @@ export class NotificationsRepository {
   ) {
     return this.prisma.eventRegistration.findMany({
       where: {
-        status: 'CONFIRMED' as any,
+        status: RegistrationStatus.CONFIRMED,
         event: {
           startDate: { gte: start, lte: end },
         },

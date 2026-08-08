@@ -1,22 +1,18 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import type { CreateUserDto } from './dto/create-user.dto';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import { CreateUserSchema } from './dto/create-user.dto';
+import { UserQueryDto } from './dto/user-query.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
+import { Roles } from '../../common/decorators/roles.decorator';
 
 @Controller('users')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  async create(@Body(new ZodValidationPipe(CreateUserSchema)) body: CreateUserDto) {
-    return this.userService.createUser(body);
-  }
-
   @Get()
-  @UseGuards(JwtAuthGuard)
-  async findAll() {
-    return this.userService.findAll();
+  @Roles('ADMIN')
+  findAll(@Query() query: UserQueryDto) {
+    return this.userService.findAll(query.page, query.limit);
   }
 }

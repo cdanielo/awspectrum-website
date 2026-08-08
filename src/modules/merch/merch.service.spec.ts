@@ -9,6 +9,7 @@ describe('MerchService', () => {
 
   const mockRepository = {
     findMany: jest.fn(),
+    count: jest.fn(),
     findById: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -34,10 +35,17 @@ describe('MerchService', () => {
     it('should return active merchandise', async () => {
       const items = [{ id: '1', name: 'T-Shirt', isActive: true }];
       mockRepository.findMany.mockResolvedValue(items);
+      mockRepository.count.mockResolvedValue(1);
 
       const result = await service.findAllActive();
-      expect(result).toEqual(items);
-      expect(mockRepository.findMany).toHaveBeenCalledWith({ where: { isActive: true } });
+      expect(result.data).toEqual(items);
+      expect(result.total).toBe(1);
+      expect(mockRepository.findMany).toHaveBeenCalledWith({
+        where: { isActive: true },
+        orderBy: { createdAt: 'desc' },
+        skip: 0,
+        take: 10,
+      });
     });
   });
 

@@ -9,6 +9,7 @@ describe('UserService', () => {
   const mockRepository = {
     create: jest.fn(),
     findAll: jest.fn(),
+    count: jest.fn(),
     findByEmail: jest.fn(),
   };
 
@@ -43,12 +44,18 @@ describe('UserService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all users without passwords', async () => {
+    it('should return paginated users without passwords', async () => {
       const users = [{ id: '1', email: 'a@b.com', firstName: 'A', lastName: 'B', createdAt: new Date() }];
       mockRepository.findAll.mockResolvedValue(users);
+      mockRepository.count.mockResolvedValue(1);
 
       const result = await service.findAll();
-      expect(result).toEqual(users);
+
+      expect(result.data).toEqual(users);
+      expect(result.total).toBe(1);
+      expect(result.page).toBe(1);
+      expect(result.limit).toBe(10);
+      expect(mockRepository.findAll).toHaveBeenCalledWith(0, 10);
     });
   });
 });

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
-import type { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UserRepository } from './user.repository';
 
 @Injectable()
@@ -11,10 +11,19 @@ export class UserService {
 
   async createUser(data: CreateUserDto) {
     const hashedPassword = await bcrypt.hash(data.password, this.saltRounds);
-    return this.userRepository.create({ ...data, password: hashedPassword });
+    return this.userRepository.create({
+      ...data,
+      email: data.email.trim().toLowerCase(),
+      password: hashedPassword,
+    });
   }
 
-  async findAll() {
-    return this.userRepository.findAll();
+  async findAll(page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.userRepository.findAll(skip, limit),
+      this.userRepository.count(),
+    ]);
+    return { data, total, page, limit };
   }
 }
